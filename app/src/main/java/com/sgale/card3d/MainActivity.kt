@@ -16,6 +16,20 @@
 
 package com.sgale.card3d
 
-import android.app.Application
+import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import com.sgale.card3d.ui.Card3D
+import dagger.hilt.android.AndroidEntryPoint
 
-class App : Application()
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            Card3D()
+        }
+    }
+}
