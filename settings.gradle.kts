@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Card3D"
 include(":app")
- 
+include(":compose-3dcard")
