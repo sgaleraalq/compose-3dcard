@@ -32,7 +32,7 @@ fun Card3D() {
     ){
         Text(
             modifier = Modifier.align(Alignment.Center),
-            text = "Main Screen"
+            text = "Main Screen askñdlfjañskfj"
         )
     }
 }
