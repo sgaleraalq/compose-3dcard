@@ -46,6 +46,8 @@ dependencies {
 //    implementation(libs.hilt.android)
 //    kapt(libs.hilt.android.compiler)
 
+    implementation(project(":compose-3dcard"))
+
     // Compose
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

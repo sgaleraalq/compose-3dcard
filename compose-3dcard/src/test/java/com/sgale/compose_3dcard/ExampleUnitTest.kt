@@ -1,4 +1,4 @@
-package com.example.compose_3dcard
+package com.sgale.compose_3dcard
 
 import org.junit.Test
 
