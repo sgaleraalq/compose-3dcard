@@ -24,9 +24,11 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 
 @Composable
@@ -34,6 +36,7 @@ fun Compose3DCard(
     modifier: Modifier = Modifier,
     img: Int
 ) {
+    val density = LocalDensity.current.density
     var rotationX by remember { mutableFloatStateOf(0f) }
     var rotationY by remember { mutableFloatStateOf(0f) }
 
@@ -41,13 +44,15 @@ fun Compose3DCard(
         modifier = modifier
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, _, _ ->
-                    rotationY += pan.x * 0.1f
-                    rotationX -= pan.y * 0.1f
+                    rotationY = (rotationY + pan.x * 0.1f)
+                    rotationX = (rotationX - pan.y * 0.1f)
                 }
-            }.graphicsLayer(
+            }
+            .graphicsLayer(
                 rotationX = rotationX,
                 rotationY = rotationY,
-                shadowElevation = 20f
+                transformOrigin = TransformOrigin.Center,
+                cameraDistance = 12f * density
             ),
         painter = painterResource(img),
         contentDescription = null,
