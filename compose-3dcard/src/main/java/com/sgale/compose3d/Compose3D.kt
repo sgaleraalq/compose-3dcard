@@ -17,30 +17,40 @@
 package com.sgale.compose3d
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun Compose3DCard(
     modifier: Modifier = Modifier,
     img: Int
 ) {
+    var rotationX by remember { mutableFloatStateOf(0f) }
+    var rotationY by remember { mutableFloatStateOf(0f) }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Image(
-            modifier = Modifier.align(Alignment.Center).height(500.dp).background(Color.Red),
-            painter = painterResource(img),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
-    }
+    Image(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, _, _ ->
+                    rotationY += pan.x * 0.1f
+                    rotationX -= pan.y * 0.1f
+                }
+            }.graphicsLayer(
+                rotationX = rotationX,
+                rotationY = rotationY,
+                shadowElevation = 20f
+            ),
+        painter = painterResource(img),
+        contentDescription = null,
+        contentScale = ContentScale.Crop
+    )
 }
