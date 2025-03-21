@@ -17,12 +17,17 @@
 package com.sgale.compose3d
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Compose3DCard(
@@ -32,9 +37,10 @@ fun Compose3DCard(
 
     Box(modifier = modifier.fillMaxSize()) {
         Image(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center).height(500.dp).background(Color.Red),
             painter = painterResource(img),
             contentDescription = null,
+            contentScale = ContentScale.Crop
         )
     }
 }
