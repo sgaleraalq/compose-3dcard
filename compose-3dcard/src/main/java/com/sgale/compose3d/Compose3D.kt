@@ -44,8 +44,13 @@ fun Compose3DCard(
         modifier = modifier
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, _, _ ->
-                    rotationY = (rotationY + pan.x * 0.1f)
-                    rotationX = (rotationX - pan.y * 0.1f)
+                    if (pan.x > 300f || pan.y > 300f) {
+                        rotationX += 720f
+                        rotationY += 720f
+                    } else {
+                        rotationY = (rotationY + pan.x * 0.1f).coerceIn(-30f, 30f)
+                        rotationX = (rotationX - pan.y * 0.1f).coerceIn(-30f, 30f)
+                    }
                 }
             }
             .graphicsLayer(
