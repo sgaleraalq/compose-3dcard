@@ -18,23 +18,28 @@ package com.sgale.compose3d
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Compose3DCard(
     modifier: Modifier = Modifier,
-    img: Int
+    img: Int,
+    shape: RoundedCornerShape = RoundedCornerShape(16.dp)
 ) {
     val density = LocalDensity.current.density
     var rotationX by remember { mutableFloatStateOf(0f) }
@@ -58,7 +63,12 @@ fun Compose3DCard(
                 rotationY = rotationY,
                 transformOrigin = TransformOrigin.Center,
                 cameraDistance = 12f * density
-            ),
+            )
+            .shadow(
+                elevation = 16.dp,
+                shape = shape
+            )
+            .clip(shape),
         painter = painterResource(img),
         contentDescription = null,
         contentScale = ContentScale.Crop
