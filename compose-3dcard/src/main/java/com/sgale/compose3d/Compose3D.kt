@@ -37,7 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Immutable
-public data class Card3D(
+public data class ShimmeringColors(
     public val shimmering: Boolean = false
 )
 
