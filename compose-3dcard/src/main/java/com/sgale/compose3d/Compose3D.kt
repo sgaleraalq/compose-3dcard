@@ -20,6 +20,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -35,8 +36,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
+@Immutable
+public data class Card3D(
+    public val shimmering: Boolean = false
+)
+
 @Composable
-fun Compose3DCard(
+public fun Compose3DCard(
     modifier: Modifier = Modifier,
     img: Int,
     shape: RoundedCornerShape = RoundedCornerShape(16.dp)
@@ -53,8 +59,8 @@ fun Compose3DCard(
                         rotationX += 720f
                         rotationY += 720f
                     } else {
-                        rotationY = (rotationY + pan.x * 0.1f).coerceIn(-30f, 30f)
-                        rotationX = (rotationX - pan.y * 0.1f).coerceIn(-30f, 30f)
+                        rotationY = (rotationY + pan.x * 0.1f).coerceIn(-10f, 10f)
+                        rotationX = (rotationX - pan.y * 0.1f).coerceIn(-10f, 10f)
                     }
                 }
             }
