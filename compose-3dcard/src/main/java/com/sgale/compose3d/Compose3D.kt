@@ -16,8 +16,6 @@
 
 package com.sgale.compose3d
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -41,7 +39,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -110,6 +107,31 @@ public fun Compose3DCard(
         rotationX = rotationX,
         rotationY = rotationY,
         shape = shape
+    )
+
+    HazeEffect(
+        modifier = modifier,
+        size = size,
+        density = density
+    )
+}
+
+@Composable
+private fun HazeEffect(
+    modifier: Modifier,
+    size: IntSize,
+    density: Density
+) {
+    val widthDp = with(density) { size.width.toDp() }
+    val heightDp = with(density) { size.height.toDp() }
+    Box(
+        modifier = modifier
+            .size(widthDp+32.dp, heightDp)
+            .background(Color.Red.copy(alpha = 0.3f))
+    )
+
+    Box(
+        modifier = modifier.size(widthDp, heightDp).background(Color.White)
     )
 }
 
