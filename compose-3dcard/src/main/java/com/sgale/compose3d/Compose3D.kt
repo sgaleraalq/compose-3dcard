@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.TransformOrigin
@@ -58,7 +59,8 @@ import androidx.compose.ui.unit.dp
 public fun Compose3DCard(
     modifier: Modifier = Modifier,
     img: Int,
-    shape: RoundedCornerShape = RoundedCornerShape(16.dp)
+    shape: RoundedCornerShape = RoundedCornerShape(16.dp),
+    colors: Compose3DColors = Compose3DColors()
 ) {
     val density = LocalDensity.current
 
@@ -139,28 +141,35 @@ public fun ShimmerEffect(
 
 
 public fun Modifier.shimmerEffect(): Modifier = composed {
+    var size by remember {
+        mutableStateOf(IntSize.Zero)
+    }
     val transition = rememberInfiniteTransition()
-    var size by remember { mutableStateOf(IntSize.Zero) }
-
-    val startX by transition.animateFloat(
-        initialValue = -2 * size.width.toFloat(),
-        targetValue = 2 * size.width.toFloat(),
+    val startOffsetX by transition.animateFloat(
+        initialValue = -3 * size.width.toFloat(),
+        targetValue = 3 * size.width.toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = 2000,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
+                durationMillis = 8000,
+                delayMillis = 2000
+            )
         )
     )
 
     background(
         brush = Brush.linearGradient(
-            colors = listOf(LightGray, Transparent, LightGray),
-            start = Offset(startX, 0f),
-            end = Offset(startX + size.width.toFloat(), size.height.toFloat())
+            colors = listOf(
+                Transparent,
+                Transparent,
+                Color(0x55FFFFFF),
+                Transparent,
+                Transparent
+            ),
+            start = Offset(startOffsetX, 0f),
+            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
         )
-    ).onGloballyPositioned {
-        size = it.size
-    }
+    )
+        .onGloballyPositioned {
+            size = it.size
+        }
 }
