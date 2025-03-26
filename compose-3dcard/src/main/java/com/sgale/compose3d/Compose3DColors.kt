@@ -20,7 +20,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 @Immutable
-public data class Compose3DColors(
+public data class Compose3DCardColors(
     val transparent: Color = Color.Transparent,
     val lightColor: Color = Color.LightGray
 )

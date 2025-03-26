@@ -39,13 +39,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
@@ -57,14 +57,15 @@ public fun Compose3DCard(
     modifier: Modifier = Modifier,
     img: Int,
     shape: RoundedCornerShape = RoundedCornerShape(16.dp),
-    colors: Compose3DColors = Compose3DColors()
+    colors: Compose3DCardColors = Compose3DCardColors()
 ) {
     val density = LocalDensity.current
 
-    var offset by remember { mutableStateOf(Offset(0f, 0f)) }
     var size by remember { mutableStateOf(IntSize.Zero) }
     var rotationX by remember { mutableFloatStateOf(0f) }
     var rotationY by remember { mutableFloatStateOf(0f) }
+
+
 
     Image(
         modifier = modifier
@@ -91,8 +92,6 @@ public fun Compose3DCard(
             )
             .clip(shape)
             .onGloballyPositioned { layoutCoordinates ->
-                val positionInRoot = layoutCoordinates.positionInRoot()
-                offset = Offset(positionInRoot.x, positionInRoot.y)
                 size = layoutCoordinates.size
             },
         painter = painterResource(img),
@@ -108,12 +107,6 @@ public fun Compose3DCard(
         rotationY = rotationY,
         shape = shape
     )
-
-    HazeEffect(
-        modifier = modifier,
-        size = size,
-        density = density
-    )
 }
 
 @Composable
@@ -126,12 +119,14 @@ private fun HazeEffect(
     val heightDp = with(density) { size.height.toDp() }
     Box(
         modifier = modifier
-            .size(widthDp+32.dp, heightDp)
+            .size(widthDp + 32.dp, heightDp)
             .background(Color.Red.copy(alpha = 0.3f))
     )
 
     Box(
-        modifier = modifier.size(widthDp, heightDp).background(Color.White)
+        modifier = modifier
+            .size(widthDp, heightDp)
+            .background(Color.White)
     )
 }
 
