@@ -39,7 +39,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -66,6 +65,17 @@ public fun Compose3DCard(
     var rotationY by remember { mutableFloatStateOf(0f) }
 
 
+    Box(
+        modifier = modifier
+            .size(size.width.dp + 20.dp, size.height.dp + 20.dp)
+            .background(Color.Red)
+            .graphicsLayer(
+                rotationX = rotationX,
+                rotationY = rotationY,
+                transformOrigin = TransformOrigin.Center,
+                cameraDistance = 12f * density.density
+            )
+    )
 
     Image(
         modifier = modifier
