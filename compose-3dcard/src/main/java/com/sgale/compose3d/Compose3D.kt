@@ -120,27 +120,6 @@ public fun Compose3DCard(
 }
 
 @Composable
-private fun HazeEffect(
-    modifier: Modifier,
-    size: IntSize,
-    density: Density
-) {
-    val widthDp = with(density) { size.width.toDp() }
-    val heightDp = with(density) { size.height.toDp() }
-    Box(
-        modifier = modifier
-            .size(widthDp + 32.dp, heightDp)
-            .background(Color.Red.copy(alpha = 0.3f))
-    )
-
-    Box(
-        modifier = modifier
-            .size(widthDp, heightDp)
-            .background(Color.White)
-    )
-}
-
-@Composable
 public fun ShimmerEffect(
     modifier: Modifier,
     density: Density,
