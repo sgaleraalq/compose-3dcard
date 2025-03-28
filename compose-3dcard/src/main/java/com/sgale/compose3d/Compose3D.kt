@@ -16,12 +16,15 @@
 
 package com.sgale.compose3d
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -39,7 +42,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Blue
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -63,19 +69,6 @@ public fun Compose3DCard(
     var size by remember { mutableStateOf(IntSize.Zero) }
     var rotationX by remember { mutableFloatStateOf(0f) }
     var rotationY by remember { mutableFloatStateOf(0f) }
-
-
-    Box(
-        modifier = modifier
-            .size(size.width.dp + 20.dp, size.height.dp + 20.dp)
-            .background(Color.Red)
-            .graphicsLayer(
-                rotationX = rotationX,
-                rotationY = rotationY,
-                transformOrigin = TransformOrigin.Center,
-                cameraDistance = 12f * density.density
-            )
-    )
 
     Image(
         modifier = modifier
@@ -109,6 +102,15 @@ public fun Compose3DCard(
         contentScale = ContentScale.Crop
     )
 
+    HazeEffect(
+        modifier = modifier,
+        density = density,
+        size = size,
+        rotationX = rotationX,
+        rotationY = rotationY,
+        shape = shape
+    )
+
     ShimmerEffect(
         modifier = modifier,
         density = density,
@@ -116,6 +118,52 @@ public fun Compose3DCard(
         rotationX = rotationX,
         rotationY = rotationY,
         shape = shape
+    )
+}
+
+@Composable
+public fun HazeEffect(
+    modifier: Modifier = Modifier,
+    density: Density,
+    size: IntSize,
+    rotationX: Float,
+    rotationY: Float,
+    shape: RoundedCornerShape
+) {
+    val transition = rememberInfiniteTransition()
+
+    val animatedOffset by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    val animatedBrush = Brush.linearGradient(
+        colors = listOf(Blue, Yellow, Red),
+        start = Offset.Zero,
+        end = Offset(x = size.width * animatedOffset, y = size.height * animatedOffset)
+    )
+
+    Box(
+        modifier = modifier
+            .size(
+                width = with(density) { size.width.toDp() },
+                height = with(density) { size.height.toDp() }
+            )
+            .graphicsLayer(
+                rotationX = rotationX,
+                rotationY = rotationY,
+                transformOrigin = TransformOrigin.Center,
+                cameraDistance = 12f * density.density
+            )
+            .border(
+                width = 2.dp,
+                brush = animatedBrush,
+                shape = shape
+            )
     )
 }
 
