@@ -126,7 +126,6 @@ public fun Compose3DCard(
             isFlipping = false
         }
     }
-    Log.i("RotationY", rotationY.toString())
 
     Box(
         modifier = modifier
