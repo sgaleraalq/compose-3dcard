@@ -26,10 +26,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -57,35 +56,46 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 
 @Composable
 public fun Compose3DCard(
     modifier: Modifier = Modifier,
     frontImage: Int,
-    backImage: Int? = null,
+    backImage: Int,
     shape: RoundedCornerShape = RoundedCornerShape(16.dp),
     colors: Compose3DCardColors = Compose3DCardColors()
 ) {
     val density = LocalDensity.current
 
-    val isFlippedAllowed = backImage != null
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    var rotationX by remember { mutableFloatStateOf(0f) }
+    var rotationY by remember { mutableFloatStateOf(0f) }
 
-    var size        by remember { mutableStateOf(IntSize.Zero) }
-    var rotationX   by remember { mutableFloatStateOf(0f) }
-    var rotationY   by remember { mutableFloatStateOf(0f) }
-
-    var isFlipped   by remember { mutableStateOf(false) }
-    Log.i("rotation", "X: $rotationX, Y: $rotationY")
-    Log.i("isFlipped", "isFlipped: $isFlipped")
+    var isFlipped by remember { mutableStateOf(false) }
+    var totalDragX by remember { mutableFloatStateOf(0f) }
 
     Box(
         modifier = modifier
             .pointerInput(Unit) {
-                detectTransformGestures { _, pan, _, _ ->
-                    rotationY = (rotationY + pan.x * 0.1f)//.coerceIn(-10f, 10f)
-                    rotationX = (rotationX - pan.y * 0.1f).coerceIn(-10f, 10f)
-                    isFlipped = isFlippedAllowed && (rotationY % 360 + 360) % 360 in 90f..270f
-                }
+                detectDragGestures (
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        totalDragX += dragAmount.x
+                        // Movement of card in 3D space
+                        rotationY = (rotationY + dragAmount.x * 0.1f).coerceIn(-10f, 10f)
+                        rotationX = (rotationX - dragAmount.y * 0.1f).coerceIn(-10f, 10f)
+                    },
+                    onDragStart = {
+                        totalDragX = 0f
+                    },
+                    onDragEnd = {
+                        Log.i("Compose3DCard", "onDragEnd: $totalDragX ${size.width}")
+                        if (abs(totalDragX) >= size.width/2) {
+                            isFlipped = !isFlipped
+                        }
+                    }
+                )
             }
             .graphicsLayer(
                 rotationX = rotationX,
@@ -100,7 +110,7 @@ public fun Compose3DCard(
     ) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource( if(!isFlipped) frontImage else backImage ?: frontImage ),
+            painter = painterResource(if (!isFlipped) frontImage else backImage),
             contentDescription = null
         )
     }
