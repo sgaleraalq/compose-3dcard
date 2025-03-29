@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,45 +57,92 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlin.math.abs
 
 @Composable
 public fun Compose3DCard(
     modifier: Modifier = Modifier,
     frontImage: Int,
-    backImage: Int,
+    backImage: Int ?= null,
     shape: RoundedCornerShape = RoundedCornerShape(16.dp),
     colors: Compose3DCardColors = Compose3DCardColors()
 ) {
     val density = LocalDensity.current
 
-    var size by remember { mutableStateOf(IntSize.Zero) }
-    var rotationX by remember { mutableFloatStateOf(0f) }
-    var rotationY by remember { mutableFloatStateOf(0f) }
+    var size        by remember { mutableStateOf(IntSize.Zero) }
+    var rotationX   by remember { mutableFloatStateOf(0f) }
+    var rotationY   by remember { mutableFloatStateOf(0f) }
 
-    var isFlipped by remember { mutableStateOf(false) }
-    var totalDragX by remember { mutableFloatStateOf(0f) }
+    var isFlipped   by remember { mutableStateOf(false) }
+    var totalDragX  by remember { mutableFloatStateOf(0f) }
+    var hasFlipped  by remember { mutableStateOf(false) }
+    var flip        by remember { mutableStateOf(false) }
+    var isFlipping  by remember { mutableStateOf(false) }
+
+    LaunchedEffect(flip) {
+        val duration = 500L
+        val halfDuration = duration / 2
+        var startRotationY = rotationY
+        val targetRotationY = if (totalDragX > 0) 90f else -90f
+
+        if (flip) {
+            isFlipping = true
+            val startTime = System.nanoTime()
+            var currentTime: Long
+            var progress: Float
+
+            while (true) {
+                currentTime = System.nanoTime() - startTime
+                progress = (currentTime / 1_000_000f) / halfDuration
+
+                if (progress >= 1f) {
+                    break
+                }
+
+                rotationY = startRotationY + progress * (targetRotationY - startRotationY)
+                delay(16L)
+            }
+
+            hasFlipped = true
+            isFlipped = !isFlipped
+
+            startRotationY = if (totalDragX > 0) -90f else 90f
+            while (true) {
+                currentTime = System.nanoTime() - startTime
+                progress = ((currentTime / 1_000_000f) - halfDuration) / halfDuration
+
+                if (progress >= 1f) {
+                    break
+                }
+
+                rotationY = startRotationY + progress * (0f - startRotationY)
+                delay(16L)
+            }
+
+            rotationX = 0f
+            flip = false
+            hasFlipped = false
+            isFlipping = false
+        }
+    }
+    Log.i("RotationY", rotationY.toString())
 
     Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectDragGestures (
                     onDrag = { change, dragAmount ->
+                        if (isFlipping) return@detectDragGestures
                         change.consume()
                         totalDragX += dragAmount.x
+
                         // Movement of card in 3D space
                         rotationY = (rotationY + dragAmount.x * 0.1f).coerceIn(-10f, 10f)
                         rotationX = (rotationX - dragAmount.y * 0.1f).coerceIn(-10f, 10f)
                     },
-                    onDragStart = {
-                        totalDragX = 0f
-                    },
-                    onDragEnd = {
-                        Log.i("Compose3DCard", "onDragEnd: $totalDragX ${size.width}")
-                        if (abs(totalDragX) >= size.width/2) {
-                            isFlipped = !isFlipped
-                        }
-                    }
+                    onDragStart = { totalDragX = 0f },
+                    onDragEnd = { if (abs(totalDragX) >= size.width/2) { flip = true } }
                 )
             }
             .graphicsLayer(
@@ -106,16 +154,16 @@ public fun Compose3DCard(
             .clip(shape)
             .onGloballyPositioned { layoutCoordinates ->
                 size = layoutCoordinates.size
-            }// TODO background
+            }
     ) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(if (!isFlipped) frontImage else backImage),
+            painter = painterResource(if (!isFlipped) frontImage else backImage ?: frontImage),
             contentDescription = null
         )
     }
-//
-//
+
+
 //    HazeEffect(
 //        modifier = modifier,
 //        density = density,
