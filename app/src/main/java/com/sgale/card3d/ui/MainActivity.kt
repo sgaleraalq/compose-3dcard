@@ -36,10 +36,7 @@ class MainActivity : ComponentActivity() {
                             )
                     ) {
                         MyCard(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .height(500.dp),
-                            img = R.drawable.img_example
+                            modifier = Modifier.align(Alignment.Center).height(500.dp)
                         )
                     }
                 }
@@ -53,10 +50,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyCard(
     modifier: Modifier = Modifier,
-    img: Int = R.drawable.img_example
+    frontImage: Int = R.drawable.img_example_front,
+    backImage: Int = R.drawable.img_example_back,
 ) {
     Compose3DCard(
         modifier = modifier,
-        img = img
+        frontImage = frontImage,
+        backImage = backImage
     )
 }

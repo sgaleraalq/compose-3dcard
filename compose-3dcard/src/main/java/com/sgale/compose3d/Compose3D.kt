@@ -16,6 +16,7 @@
 
 package com.sgale.compose3d
 
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -27,6 +28,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -38,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -49,7 +51,6 @@ import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -60,27 +61,30 @@ import androidx.compose.ui.unit.dp
 @Composable
 public fun Compose3DCard(
     modifier: Modifier = Modifier,
-    img: Int,
+    frontImage: Int,
+    backImage: Int? = null,
     shape: RoundedCornerShape = RoundedCornerShape(16.dp),
     colors: Compose3DCardColors = Compose3DCardColors()
 ) {
     val density = LocalDensity.current
 
-    var size by remember { mutableStateOf(IntSize.Zero) }
-    var rotationX by remember { mutableFloatStateOf(0f) }
-    var rotationY by remember { mutableFloatStateOf(0f) }
+    val isFlippedAllowed = backImage != null
 
-    Image(
+    var size        by remember { mutableStateOf(IntSize.Zero) }
+    var rotationX   by remember { mutableFloatStateOf(0f) }
+    var rotationY   by remember { mutableFloatStateOf(0f) }
+
+    var isFlipped   by remember { mutableStateOf(false) }
+    Log.i("rotation", "X: $rotationX, Y: $rotationY")
+    Log.i("isFlipped", "isFlipped: $isFlipped")
+
+    Box(
         modifier = modifier
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, _, _ ->
-                    if (pan.x > 300f || pan.y > 300f) {
-                        rotationX += 720f
-                        rotationY += 720f
-                    } else {
-                        rotationY = (rotationY + pan.x * 0.1f).coerceIn(-10f, 10f)
-                        rotationX = (rotationX - pan.y * 0.1f).coerceIn(-10f, 10f)
-                    }
+                    rotationY = (rotationY + pan.x * 0.1f)//.coerceIn(-10f, 10f)
+                    rotationX = (rotationX - pan.y * 0.1f).coerceIn(-10f, 10f)
+                    isFlipped = isFlippedAllowed && (rotationY % 360 + 360) % 360 in 90f..270f
                 }
             }
             .graphicsLayer(
@@ -89,36 +93,36 @@ public fun Compose3DCard(
                 transformOrigin = TransformOrigin.Center,
                 cameraDistance = 12f * density.density
             )
-            .shadow(
-                elevation = 16.dp,
-                shape = shape
-            )
             .clip(shape)
             .onGloballyPositioned { layoutCoordinates ->
                 size = layoutCoordinates.size
-            },
-        painter = painterResource(img),
-        contentDescription = null,
-        contentScale = ContentScale.Crop
-    )
-
-    HazeEffect(
-        modifier = modifier,
-        density = density,
-        size = size,
-        rotationX = rotationX,
-        rotationY = rotationY,
-        shape = shape
-    )
-
-    ShimmerEffect(
-        modifier = modifier,
-        density = density,
-        size = size,
-        rotationX = rotationX,
-        rotationY = rotationY,
-        shape = shape
-    )
+            }// TODO background
+    ) {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource( if(!isFlipped) frontImage else backImage ?: frontImage ),
+            contentDescription = null
+        )
+    }
+//
+//
+//    HazeEffect(
+//        modifier = modifier,
+//        density = density,
+//        size = size,
+//        rotationX = rotationX,
+//        rotationY = rotationY,
+//        shape = shape
+//    )
+//
+//    ShimmerEffect(
+//        modifier = modifier,
+//        density = density,
+//        size = size,
+//        rotationX = rotationX,
+//        rotationY = rotationY,
+//        shape = shape
+//    )
 }
 
 @Composable
