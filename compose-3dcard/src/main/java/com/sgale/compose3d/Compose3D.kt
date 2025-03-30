@@ -28,6 +28,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -59,19 +61,19 @@ import androidx.compose.ui.unit.dp
 public fun Compose3DCard(
     modifier: Modifier = Modifier,
     frontImage: Int,
-    backImage: Int ?= null,
+    backImage: Int? = null,
     shape: RoundedCornerShape = RoundedCornerShape(16.dp),
     colors: Compose3DCardColors = Compose3DCardColors()
 ) {
     val density = LocalDensity.current
 
-    var size            by remember { mutableStateOf(IntSize.Zero) }
-    val flipController  = remember { FlipController() }
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    val flipController = remember { FlipController() }
 
-    Box(
+    Image(
         modifier = modifier
             .pointerInput(Unit) {
-                detectDragGestures (
+                detectDragGestures(
                     onDrag = { change, dragAmount ->
                         if (flipController.isFlipping) return@detectDragGestures
                         change.consume()
@@ -87,19 +89,19 @@ public fun Compose3DCard(
                 transformOrigin = TransformOrigin.Center,
                 cameraDistance = 12f * density.density
             )
-            .clip(shape)
             .onGloballyPositioned { layoutCoordinates ->
                 size = layoutCoordinates.size
                 flipController.updateSize(layoutCoordinates.size)
             }
-    ) {
-        Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(if (!flipController.isFlipped) frontImage else backImage ?: frontImage),
-            contentDescription = null
-        )
-    }
-
+            .background(Red)
+            .padding(12.dp)
+            .clip(shape),
+        painter = painterResource(
+            if (!flipController.isFlipped) frontImage else backImage ?: frontImage
+        ),
+        contentDescription = null,
+        contentScale = ContentScale.Crop
+    )
 
 //    HazeEffect(
 //        modifier = modifier,
