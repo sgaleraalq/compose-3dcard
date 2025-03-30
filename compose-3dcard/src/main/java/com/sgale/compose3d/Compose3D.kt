@@ -16,7 +16,6 @@
 
 package com.sgale.compose3d
 
-import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -32,9 +31,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,8 +54,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import kotlin.math.abs
 
 @Composable
 public fun Compose3DCard(
@@ -70,17 +65,17 @@ public fun Compose3DCard(
 ) {
     val density = LocalDensity.current
 
-    var size        by remember { mutableStateOf(IntSize.Zero) }
+    var size            by remember { mutableStateOf(IntSize.Zero) }
+    val flipController  = remember { FlipController() }
+
+
 //    var rotationX   by remember { mutableFloatStateOf(0f) }
 //    var rotationY   by remember { mutableFloatStateOf(0f) }
-
-    val flipController = remember { FlipController() }
-
-    var isFlipped   by remember { mutableStateOf(false) }
-    var totalDragX  by remember { mutableFloatStateOf(0f) }
-    var hasFlipped  by remember { mutableStateOf(false) }
-    var flip        by remember { mutableStateOf(false) }
-    var isFlipping  by remember { mutableStateOf(false) }
+//    var isFlipped   by remember { mutableStateOf(false) }
+//    var totalDragX  by remember { mutableFloatStateOf(0f) }
+//    var hasFlipped  by remember { mutableStateOf(false) }
+//    var flip        by remember { mutableStateOf(false) }
+//    var isFlipping  by remember { mutableStateOf(false) }
 
 
     Box(
@@ -88,15 +83,13 @@ public fun Compose3DCard(
             .pointerInput(Unit) {
                 detectDragGestures (
                     onDrag = { change, dragAmount ->
-                        if (isFlipping) return@detectDragGestures
+                        if (flipController.isFlipping.value) return@detectDragGestures
                         change.consume()
-                        totalDragX += dragAmount.x
-
                         // Movement of card in 3D space
                         flipController.updateRotation(dragAmount.x, dragAmount.y)
                     },
-                    onDragStart = { totalDragX = 0f },
-                    onDragEnd = { if (abs(totalDragX) >= size.width/2) { flip = true } }
+                    onDragStart = { flipController.resetDragging() },
+                    onDragEnd = { flipController.endDragging() }
                 )
             }
             .graphicsLayer(
@@ -108,11 +101,12 @@ public fun Compose3DCard(
             .clip(shape)
             .onGloballyPositioned { layoutCoordinates ->
                 size = layoutCoordinates.size
+                flipController.updateSize(layoutCoordinates.size)
             }
     ) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(if (!isFlipped) frontImage else backImage ?: frontImage),
+            painter = painterResource(if (!flipController.isFlipped.value) frontImage else backImage ?: frontImage),
             contentDescription = null
         )
     }
