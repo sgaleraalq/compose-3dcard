@@ -73,7 +73,7 @@ public fun Compose3DCard(
             .pointerInput(Unit) {
                 detectDragGestures (
                     onDrag = { change, dragAmount ->
-                        if (flipController.isFlipping.value) return@detectDragGestures
+                        if (flipController.isFlipping) return@detectDragGestures
                         change.consume()
                         flipController.updateRotation(dragAmount.x, dragAmount.y)
                     },
@@ -95,7 +95,7 @@ public fun Compose3DCard(
     ) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = painterResource(if (!flipController.isFlipped.value) frontImage else backImage ?: frontImage),
+            painter = painterResource(if (!flipController.isFlipped) frontImage else backImage ?: frontImage),
             contentDescription = null
         )
     }
