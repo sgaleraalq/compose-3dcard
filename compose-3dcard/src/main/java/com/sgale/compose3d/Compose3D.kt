@@ -39,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -93,8 +94,11 @@ public fun Compose3DCard(
                 size = layoutCoordinates.size
                 flipController.updateSize(layoutCoordinates.size)
             }
-            .background(Red)
             .padding(12.dp)
+            .shadow(
+                elevation = 16.dp,
+                shape = shape
+            )
             .clip(shape),
         painter = painterResource(
             if (!flipController.isFlipped) frontImage else backImage ?: frontImage
@@ -112,14 +116,14 @@ public fun Compose3DCard(
 //        shape = shape
 //    )
 
-//    ShimmerEffect(
-//        modifier = modifier,
-//        density = density,
-//        size = size,
-//        rotationX = rotationX,
-//        rotationY = rotationY,
-//        shape = shape
-//    )
+    ShimmerEffect(
+        modifier = modifier,
+        density = density,
+        size = size,
+        rotationX = flipController.rotationX.value,
+        rotationY = flipController.rotationY.value,
+        shape = shape
+    )
 }
 
 @Composable
