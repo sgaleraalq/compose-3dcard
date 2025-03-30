@@ -71,8 +71,10 @@ public fun Compose3DCard(
     val density = LocalDensity.current
 
     var size        by remember { mutableStateOf(IntSize.Zero) }
-    var rotationX   by remember { mutableFloatStateOf(0f) }
-    var rotationY   by remember { mutableFloatStateOf(0f) }
+//    var rotationX   by remember { mutableFloatStateOf(0f) }
+//    var rotationY   by remember { mutableFloatStateOf(0f) }
+
+    val flipController = remember { FlipController() }
 
     var isFlipped   by remember { mutableStateOf(false) }
     var totalDragX  by remember { mutableFloatStateOf(0f) }
@@ -80,52 +82,6 @@ public fun Compose3DCard(
     var flip        by remember { mutableStateOf(false) }
     var isFlipping  by remember { mutableStateOf(false) }
 
-    LaunchedEffect(flip) {
-        val duration = 500L
-        val halfDuration = duration / 2
-        var startRotationY = rotationY
-        val targetRotationY = if (totalDragX > 0) 90f else -90f
-
-        if (flip) {
-            isFlipping = true
-            val startTime = System.nanoTime()
-            var currentTime: Long
-            var progress: Float
-
-            while (true) {
-                currentTime = System.nanoTime() - startTime
-                progress = (currentTime / 1_000_000f) / halfDuration
-
-                if (progress >= 1f) {
-                    break
-                }
-
-                rotationY = startRotationY + progress * (targetRotationY - startRotationY)
-                delay(16L)
-            }
-
-            hasFlipped = true
-            isFlipped = !isFlipped
-
-            startRotationY = if (totalDragX > 0) -90f else 90f
-            while (true) {
-                currentTime = System.nanoTime() - startTime
-                progress = ((currentTime / 1_000_000f) - halfDuration) / halfDuration
-
-                if (progress >= 1f) {
-                    break
-                }
-
-                rotationY = startRotationY + progress * (0f - startRotationY)
-                delay(16L)
-            }
-
-            rotationX = 0f
-            flip = false
-            hasFlipped = false
-            isFlipping = false
-        }
-    }
 
     Box(
         modifier = modifier
@@ -137,16 +93,15 @@ public fun Compose3DCard(
                         totalDragX += dragAmount.x
 
                         // Movement of card in 3D space
-                        rotationY = (rotationY + dragAmount.x * 0.1f).coerceIn(-10f, 10f)
-                        rotationX = (rotationX - dragAmount.y * 0.1f).coerceIn(-10f, 10f)
+                        flipController.updateRotation(dragAmount.x, dragAmount.y)
                     },
                     onDragStart = { totalDragX = 0f },
                     onDragEnd = { if (abs(totalDragX) >= size.width/2) { flip = true } }
                 )
             }
             .graphicsLayer(
-                rotationX = rotationX,
-                rotationY = rotationY,
+                rotationX = flipController.rotationX.value,
+                rotationY = flipController.rotationY.value,
                 transformOrigin = TransformOrigin.Center,
                 cameraDistance = 12f * density.density
             )
@@ -171,7 +126,7 @@ public fun Compose3DCard(
 //        rotationY = rotationY,
 //        shape = shape
 //    )
-//
+
 //    ShimmerEffect(
 //        modifier = modifier,
 //        density = density,
@@ -288,3 +243,51 @@ public fun Modifier.shimmerEffect(): Modifier = composed {
             size = it.size
         }
 }
+
+
+//    LaunchedEffect(flip) {
+//        val duration = 500L
+//        val halfDuration = duration / 2
+//        var startRotationY = rotationY
+//        val targetRotationY = if (totalDragX > 0) 90f else -90f
+//
+//        if (flip) {
+//            isFlipping = true
+//            val startTime = System.nanoTime()
+//            var currentTime: Long
+//            var progress: Float
+//
+//            while (true) {
+//                currentTime = System.nanoTime() - startTime
+//                progress = (currentTime / 1_000_000f) / halfDuration
+//
+//                if (progress >= 1f) {
+//                    break
+//                }
+//
+//                rotationY = startRotationY + progress * (targetRotationY - startRotationY)
+//                delay(16L)
+//            }
+//
+//            hasFlipped = true
+//            isFlipped = !isFlipped
+//
+//            startRotationY = if (totalDragX > 0) -90f else 90f
+//            while (true) {
+//                currentTime = System.nanoTime() - startTime
+//                progress = ((currentTime / 1_000_000f) - halfDuration) / halfDuration
+//
+//                if (progress >= 1f) {
+//                    break
+//                }
+//
+//                rotationY = startRotationY + progress * (0f - startRotationY)
+//                delay(16L)
+//            }
+//
+//            rotationX = 0f
+//            flip = false
+//            hasFlipped = false
+//            isFlipping = false
+//        }
+//    }
