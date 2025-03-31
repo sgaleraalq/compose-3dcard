@@ -40,9 +40,7 @@ class MainActivity : ComponentActivity() {
                                 Compose3DTheme.colors.background
                             )
                     ) {
-                        MyCard(
-                            modifier = Modifier.align(Alignment.Center).height(500.dp)
-                        )
+                        MyCard()
                     }
                 }
             }
@@ -61,7 +59,7 @@ fun MyCard(
         modifier = Modifier.fillMaxSize()
     ) {
         Compose3DCard(
-            modifier = modifier,
+            modifier = modifier.height(500.dp),
             frontImage = frontImage,
             backImage = backImage
         )
