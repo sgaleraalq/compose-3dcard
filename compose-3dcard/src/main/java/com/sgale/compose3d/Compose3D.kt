@@ -97,7 +97,8 @@ public fun Compose3DCard(
             .padding(12.dp)
             .shadow(
                 elevation = 16.dp,
-                shape = shape
+                shape = shape,
+                ambientColor = Red
             )
             .clip(shape),
         painter = painterResource(
@@ -193,6 +194,7 @@ public fun ShimmerEffect(
                 transformOrigin = TransformOrigin.Center,
                 cameraDistance = 12f * density.density
             )
+            .padding(12.dp)
             .clip(shape)
             .shimmerEffect()
     )
