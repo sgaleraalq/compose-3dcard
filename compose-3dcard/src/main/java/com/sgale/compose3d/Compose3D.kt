@@ -117,14 +117,16 @@ public fun Compose3DCard(
 //        shape = shape
 //    )
 
-    ShimmerEffect(
-        modifier = modifier,
-        density = density,
-        size = size,
-        rotationX = flipController.rotationX.value,
-        rotationY = flipController.rotationY.value,
-        shape = shape
-    )
+    if (!flipController.isFlipped){
+        ShimmerEffect(
+            modifier = modifier,
+            density = density,
+            size = size,
+            rotationX = flipController.rotationX.value,
+            rotationY = flipController.rotationY.value,
+            shape = shape
+        )
+    }
 }
 
 @Composable
