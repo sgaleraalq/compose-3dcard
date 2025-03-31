@@ -109,71 +109,16 @@ public fun Compose3DCard(
         contentScale = ContentScale.Crop
     )
 
-//    HazeEffect(
-//        modifier = modifier,
-//        density = density,
-//        size = size,
-//        rotationX = rotationX,
-//        rotationY = rotationY,
-//        shape = shape
-//    )
-
-//    if (!flipController.isFlipped){
-//        ShimmerEffect(
-//            modifier = modifier,
-//            size = size,
-//            rotationX = flipController.rotationX.value,
-//            rotationY = flipController.rotationY.value,
-//            shape = shape,
-//            shimmerDirection = shimmerDirection
-//        )
-//    }
-}
-
-@Composable
-public fun HazeEffect(
-    modifier: Modifier = Modifier,
-    density: Density,
-    size: IntSize,
-    rotationX: Float,
-    rotationY: Float,
-    shape: RoundedCornerShape
-) {
-    val transition = rememberInfiniteTransition()
-
-    val animatedOffset by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+    if (!flipController.isFlipped){
+        ShimmerEffect(
+            modifier = modifier,
+            size = size,
+            rotationX = flipController.rotationX.value,
+            rotationY = flipController.rotationY.value,
+            shape = shape,
+            shimmerDirection = shimmerDirection
         )
-    )
-
-    val animatedBrush = Brush.linearGradient(
-        colors = listOf(Blue, Yellow, Red),
-        start = Offset.Zero,
-        end = Offset(x = size.width * animatedOffset, y = size.height * animatedOffset)
-    )
-
-    Box(
-        modifier = modifier
-            .size(
-                width = with(density) { size.width.toDp() },
-                height = with(density) { size.height.toDp() }
-            )
-            .graphicsLayer(
-                rotationX = rotationX,
-                rotationY = rotationY,
-                transformOrigin = TransformOrigin.Center,
-                cameraDistance = 12f * density.density
-            )
-            .border(
-                width = 2.dp,
-                brush = animatedBrush,
-                shape = shape
-            )
-    )
+    }
 }
 
 @Composable
@@ -203,7 +148,6 @@ public fun ShimmerEffect(
             .shimmerEffect(shimmerDirection)
     )
 }
-
 
 public fun Modifier.shimmerEffect(
     shimmerDirection: ShimmerDirection
@@ -257,4 +201,51 @@ public fun Modifier.shimmerEffect(
         .onGloballyPositioned {
             size = it.size
         }
+}
+
+
+@Composable
+public fun HazeEffect(
+    modifier: Modifier = Modifier,
+    density: Density,
+    size: IntSize,
+    rotationX: Float,
+    rotationY: Float,
+    shape: RoundedCornerShape
+) {
+    val transition = rememberInfiniteTransition()
+
+    val animatedOffset by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    val animatedBrush = Brush.linearGradient(
+        colors = listOf(Blue, Yellow, Red),
+        start = Offset.Zero,
+        end = Offset(x = size.width * animatedOffset, y = size.height * animatedOffset)
+    )
+
+    Box(
+        modifier = modifier
+            .size(
+                width = with(density) { size.width.toDp() },
+                height = with(density) { size.height.toDp() }
+            )
+            .graphicsLayer(
+                rotationX = rotationX,
+                rotationY = rotationY,
+                transformOrigin = TransformOrigin.Center,
+                cameraDistance = 12f * density.density
+            )
+            .border(
+                width = 2.dp,
+                brush = animatedBrush,
+                shape = shape
+            )
+    )
 }
