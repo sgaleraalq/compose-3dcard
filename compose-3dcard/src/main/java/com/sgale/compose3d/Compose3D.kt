@@ -63,8 +63,9 @@ public fun Compose3DCard(
     modifier: Modifier = Modifier,
     frontImage: Int,
     backImage: Int? = null,
-    shape: RoundedCornerShape = RoundedCornerShape(16.dp),
-    colors: Compose3DCardColors = Compose3DCardColors()
+    shape: RoundedCornerShape = RoundedCornerShape(12.dp),
+    colors: Compose3DCardColors = Compose3DCardColors(),
+    shimmerDirection: ShimmerDirection = ShimmerDirection.TOP_LEFT_TO_BOTTOM_RIGHT
 ) {
     val density = LocalDensity.current
 
@@ -117,16 +118,16 @@ public fun Compose3DCard(
 //        shape = shape
 //    )
 
-    if (!flipController.isFlipped){
-        ShimmerEffect(
-            modifier = modifier,
-            density = density,
-            size = size,
-            rotationX = flipController.rotationX.value,
-            rotationY = flipController.rotationY.value,
-            shape = shape
-        )
-    }
+//    if (!flipController.isFlipped){
+//        ShimmerEffect(
+//            modifier = modifier,
+//            size = size,
+//            rotationX = flipController.rotationX.value,
+//            rotationY = flipController.rotationY.value,
+//            shape = shape,
+//            shimmerDirection = shimmerDirection
+//        )
+//    }
 }
 
 @Composable
@@ -178,12 +179,13 @@ public fun HazeEffect(
 @Composable
 public fun ShimmerEffect(
     modifier: Modifier,
-    density: Density,
     size: IntSize,
     rotationX: Float,
     rotationY: Float,
-    shape: RoundedCornerShape
+    shape: RoundedCornerShape,
+    shimmerDirection: ShimmerDirection
 ) {
+    val density = LocalDensity.current
     Box(
         modifier = modifier
             .size(
@@ -198,25 +200,45 @@ public fun ShimmerEffect(
             )
             .padding(12.dp)
             .clip(shape)
-            .shimmerEffect()
+            .shimmerEffect(shimmerDirection)
     )
 }
 
 
-public fun Modifier.shimmerEffect(): Modifier = composed {
+public fun Modifier.shimmerEffect(
+    shimmerDirection: ShimmerDirection
+): Modifier = composed {
+
     var size by remember {
         mutableStateOf(IntSize.Zero)
     }
     val transition = rememberInfiniteTransition()
+
+    val directionMultiplier = when (shimmerDirection) {
+        ShimmerDirection.TOP_LEFT_TO_BOTTOM_RIGHT, ShimmerDirection.BOTTOM_LEFT_TO_TOP_RIGHT -> -1
+        ShimmerDirection.TOP_RIGHT_TO_BOTTOM_LEFT, ShimmerDirection.BOTTOM_RIGHT_TO_TOP_LEFT -> 1
+    }
+
+    val initialValue = 3 * directionMultiplier * size.width.toFloat()
+    val targetValue = -initialValue
+
     val startOffsetX by transition.animateFloat(
-        initialValue = -3 * size.width.toFloat(),
-        targetValue = 3 * size.width.toFloat(),
+        initialValue = initialValue,
+        targetValue = targetValue,
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = 8000,
-                delayMillis = 2000
+                durationMillis = 500,
+                delayMillis = 0
             )
         )
+    )
+
+    val endOffset = Offset(
+        x = startOffsetX + directionMultiplier * size.width.toFloat(),
+        y = when (shimmerDirection) {
+            ShimmerDirection.TOP_LEFT_TO_BOTTOM_RIGHT, ShimmerDirection.TOP_RIGHT_TO_BOTTOM_LEFT -> size.height.toFloat()
+            ShimmerDirection.BOTTOM_LEFT_TO_TOP_RIGHT, ShimmerDirection.BOTTOM_RIGHT_TO_TOP_LEFT -> -size.height.toFloat()
+        }
     )
 
     background(
@@ -229,7 +251,7 @@ public fun Modifier.shimmerEffect(): Modifier = composed {
                 Transparent
             ),
             start = Offset(startOffsetX, 0f),
-            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
+            end = endOffset
         )
     )
         .onGloballyPositioned {
