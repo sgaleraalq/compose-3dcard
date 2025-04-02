@@ -209,7 +209,6 @@ public fun Modifier.shimmerEffect(
         }
 }
 
-
 @Composable
 public fun HazeEffect(
     modifier: Modifier = Modifier,
