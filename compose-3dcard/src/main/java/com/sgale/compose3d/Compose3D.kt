@@ -74,57 +74,52 @@ public fun Compose3DCard(
     var size by remember { mutableStateOf(IntSize.Zero) }
     val flipController = remember { FlipController() }
 
-    Box(
-        modifier = modifier
-    ) {
-        Image(
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center)
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDrag = { change, dragAmount ->
-                            if (flipController.isFlipping) return@detectDragGestures
-                            change.consume()
-                            flipController.updateRotation(dragAmount.x, dragAmount.y)
-                        },
-                        onDragStart = { flipController.resetDragging() },
-                        onDragEnd = { flipController.endDragging() }
-                    )
-                }
-                .graphicsLayer(
-                    rotationX = flipController.rotationX.value,
-                    rotationY = flipController.rotationY.value,
-                    transformOrigin = TransformOrigin.Center,
-                    cameraDistance = 12f * density.density
-                )
-                .onGloballyPositioned { layoutCoordinates ->
-                    size = layoutCoordinates.size
-                    flipController.updateSize(layoutCoordinates.size)
-                }
-                .padding(12.dp)
-                .shadow(
-                    elevation = 16.dp,
-                    shape = shape,
-                    ambientColor = Red
-                )
-                .clip(shape),
-            painter = painterResource(
-                if (!flipController.isFlipped) frontImage else backImage ?: frontImage
-            ),
-            contentDescription = null,
-            contentScale = contentScale
-        )
 
-        if (!flipController.isFlipped) {
-            ShimmerEffect(
-                size = size,
+    Image(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { change, dragAmount ->
+                        if (flipController.isFlipping) return@detectDragGestures
+                        change.consume()
+                        flipController.updateRotation(dragAmount.x, dragAmount.y)
+                    },
+                    onDragStart = { flipController.resetDragging() },
+                    onDragEnd = { flipController.endDragging() }
+                )
+            }
+            .graphicsLayer(
                 rotationX = flipController.rotationX.value,
                 rotationY = flipController.rotationY.value,
-                shape = shape,
-                shimmerDirection = shimmerDirection
+                transformOrigin = TransformOrigin.Center,
+                cameraDistance = 12f * density.density
             )
-        }
+            .onGloballyPositioned { layoutCoordinates ->
+                size = layoutCoordinates.size
+                flipController.updateSize(layoutCoordinates.size)
+            }
+            .padding(12.dp)
+            .shadow(
+                elevation = 16.dp,
+                shape = shape,
+                ambientColor = Red
+            )
+            .clip(shape),
+        painter = painterResource(
+            if (!flipController.isFlipped) frontImage else backImage ?: frontImage
+        ),
+        contentDescription = null,
+        contentScale = contentScale
+    )
+
+    if (!flipController.isFlipped) {
+        ShimmerEffect(
+            size = size,
+            rotationX = flipController.rotationX.value,
+            rotationY = flipController.rotationY.value,
+            shape = shape,
+            shimmerDirection = shimmerDirection
+        )
     }
 }
 
