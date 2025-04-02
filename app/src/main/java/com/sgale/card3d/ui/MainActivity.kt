@@ -83,7 +83,12 @@ fun MyCard(
                         shimmerDirection = shimmerDirections[direction]
                     )
                     Text(
-                        text = shimmerDirections[direction].name,
+                        text = shimmerDirections[direction].name
+                            .lowercase()
+                            .replace("_", " ")
+                            .split(" ")
+                            .joinToString(" ")
+                            { it.replaceFirstChar { c -> c.uppercase() } },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp),

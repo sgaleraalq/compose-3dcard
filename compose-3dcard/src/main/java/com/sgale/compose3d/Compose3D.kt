@@ -65,6 +65,7 @@ public fun Compose3DCard(
     modifier: Modifier = Modifier,
     @DrawableRes frontImage: Int,
     @DrawableRes backImage: Int? = null,
+    contentDescription: String? = null,
     contentScale: ContentScale = ContentScale.Fit,
     alignment: Alignment = Alignment.Center,
     shape: RoundedCornerShape = RoundedCornerShape(12.dp),
@@ -111,11 +112,10 @@ public fun Compose3DCard(
             painter = painterResource(
                 if (!flipController.isFlipped) frontImage else backImage ?: frontImage
             ),
-            contentDescription = null,
+            contentDescription = contentDescription,
             contentScale = contentScale
         )
 
-        // Shimmer effect encima de la imagen
         if (!flipController.isFlipped) {
             ShimmerEffect(
                 rotationX = flipController.rotationX.value,
