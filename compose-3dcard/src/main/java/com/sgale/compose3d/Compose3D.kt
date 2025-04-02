@@ -28,7 +28,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,11 +72,23 @@ public fun Compose3DCard(
     shimmerDirection: ShimmerDirection = ShimmerDirection.TOP_LEFT_TO_BOTTOM_RIGHT
 ) {
     val density = LocalDensity.current
-
-    var size by remember { mutableStateOf(IntSize.Zero) }
     val flipController = remember { FlipController() }
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    var imageSize by remember { mutableStateOf(IntSize.Zero) }
 
-    Box {
+    val frontPainter = painterResource(frontImage)
+    val defaultWidth =
+        with(density) { frontPainter.intrinsicSize.width.toDp() }
+    val defaultHeight = with(density) { frontPainter.intrinsicSize.height.toDp() }
+
+    Box(
+        modifier = Modifier.then(
+            Modifier.size(
+                if (imageSize == IntSize.Zero) defaultWidth else with(density) { imageSize.width.toDp() },
+                if (imageSize == IntSize.Zero) defaultHeight else with(density) { imageSize.height.toDp() }
+            )
+        )
+    ) {
         Image(
             modifier = modifier
                 .align(alignment)
@@ -102,7 +113,6 @@ public fun Compose3DCard(
                     size = layoutCoordinates.size
                     flipController.updateSize(layoutCoordinates.size)
                 }
-                .padding(12.dp)
                 .shadow(
                     elevation = 16.dp,
                     shape = shape,
@@ -122,7 +132,10 @@ public fun Compose3DCard(
                 rotationY = flipController.rotationY.value,
                 shape = shape,
                 shimmerDirection = shimmerDirection,
-                modifier = Modifier.size(with(density){size.width.toDp()}, with(density){size.height.toDp()}).align(alignment)
+                modifier = Modifier.size(
+                    with(density) { size.width.toDp() },
+                    with(density) { size.height.toDp() }
+                ).align(alignment)
             )
         }
     }
@@ -145,7 +158,6 @@ public fun ShimmerEffect(
                 transformOrigin = TransformOrigin.Center,
                 cameraDistance = 12f * density.density
             )
-            .padding(12.dp)
             .clip(shape)
             .shimmerEffect(shimmerDirection)
     )

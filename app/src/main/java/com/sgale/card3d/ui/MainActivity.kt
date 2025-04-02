@@ -64,8 +64,10 @@ fun MyCard(
         modifier = Modifier.fillMaxSize()
     ) {
         Compose3DCard(
+            modifier = Modifier.height(500.dp),
             frontImage = frontImage,
-            backImage = backImage
+            backImage = backImage,
+            contentScale = ContentScale.Crop
         )
 
         HorizontalDivider(modifier = Modifier.padding(8.dp), thickness = 1.dp)
