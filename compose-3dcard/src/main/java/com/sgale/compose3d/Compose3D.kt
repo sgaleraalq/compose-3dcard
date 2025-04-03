@@ -94,9 +94,14 @@ public fun Compose3DCard(
     Layout(
         modifier.then(semantics).clipToBounds().paint(
             painter = painterResource(frontImage),
+        ).border(
+            width = 1.dp,
+            color = Red
         )
     ) { _, constraints ->
-        layout(constraints.minWidth, constraints.minHeight) {}
+        layout(constraints.minWidth, constraints.minHeight) {
+
+        }
     }
 //    Box(
 //        modifier = modifier.size(
