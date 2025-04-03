@@ -28,7 +28,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -56,6 +55,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
@@ -65,32 +65,23 @@ public fun Compose3DCard(
     @DrawableRes frontImage: Int,
     @DrawableRes backImage: Int? = null,
     contentDescription: String? = null,
-    contentScale: ContentScale = ContentScale.Fit,
+    contentScale: ContentScale = ContentScale.Crop,
     alignment: Alignment = Alignment.Center,
-    shape: RoundedCornerShape = RoundedCornerShape(12.dp),
+    shape: RoundedCornerShape = RoundedCornerShape(4.dp),
     colors: Compose3DCardColors = Compose3DCardColors(),
     shimmerDirection: ShimmerDirection = ShimmerDirection.TOP_LEFT_TO_BOTTOM_RIGHT
 ) {
     val density = LocalDensity.current
-    val flipController = remember { FlipController() }
-    var size by remember { mutableStateOf(IntSize.Zero) }
-    var imageSize by remember { mutableStateOf(IntSize.Zero) }
+    val flipController  = remember { FlipController() }
+    var size            by remember { mutableStateOf(IntSize.Zero) }
 
-    val frontPainter = painterResource(frontImage)
-    val defaultWidth =
-        with(density) { frontPainter.intrinsicSize.width.toDp() }
-    val defaultHeight = with(density) { frontPainter.intrinsicSize.height.toDp() }
-
-    Box(
-        modifier = Modifier.then(
-            Modifier.size(
-                if (imageSize == IntSize.Zero) defaultWidth else with(density) { imageSize.width.toDp() },
-                if (imageSize == IntSize.Zero) defaultHeight else with(density) { imageSize.height.toDp() }
-            )
-        )
-    ) {
+    Box {
         Image(
             modifier = modifier
+                .size(
+                    width = if (size.width > 0) with(density) { size.width.toDp() } else Dp.Unspecified,
+                    height = if (size.height > 0) with(density) { size.height.toDp() } else Dp.Unspecified
+                )
                 .align(alignment)
                 .pointerInput(Unit) {
                     detectDragGestures(
