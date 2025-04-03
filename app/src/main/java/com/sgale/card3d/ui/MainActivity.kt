@@ -110,8 +110,7 @@ fun MyCard(
                             .split(" ")
                             .joinToString(" ")
                             { it.replaceFirstChar { c -> c.uppercase() } },
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         color = Color.White
                     )
                 }
