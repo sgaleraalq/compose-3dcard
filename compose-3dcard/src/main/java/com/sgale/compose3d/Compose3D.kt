@@ -16,6 +16,7 @@
 
 package com.sgale.compose3d
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -28,7 +29,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -40,10 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.paint
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Blue
@@ -54,18 +53,14 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntSize
 
 @Composable
 public fun Compose3DCard(
@@ -80,82 +75,71 @@ public fun Compose3DCard(
     shimmerDirection: ShimmerDirection = ShimmerDirection.TOP_LEFT_TO_BOTTOM_RIGHT
 ) {
     val density = LocalDensity.current
-    val flipController  = remember { FlipController() }
+    val flipController = remember { FlipController() }
+
     var size            by remember { mutableStateOf(IntSize.Zero) }
+    var displayedSize   by remember { mutableStateOf(IntSize.Zero) }
+    val intrinsicSize   = painterResource(frontImage).intrinsicSize
 
-    val semantics = if (contentDescription != null) {
-        Modifier.semantics {
-            this.contentDescription = contentDescription
-            this.role = Role.Image
-        }
-    } else {
-        Modifier
-    }
-    Layout(
-        modifier.then(semantics).clipToBounds().paint(
-            painter = painterResource(frontImage),
-        ).border(
-            width = 1.dp,
-            color = Red
+    Box(
+        modifier = modifier.size(
+            width = if (size.width > 0) with(density) { size.width.toDp() } else Dp.Unspecified,
+            height = if (size.height > 0) with(density) { size.height.toDp() } else Dp.Unspecified
         )
-    ) { _, constraints ->
-        layout(constraints.minWidth, constraints.minHeight) {
+    ) {
+        Image(
+            modifier = modifier
+                .align(alignment)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDrag = { change, dragAmount ->
+                            if (flipController.isFlipping) return@detectDragGestures
+                            change.consume()
+                            flipController.updateRotation(dragAmount.x, dragAmount.y)
+                        },
+                        onDragStart = { flipController.resetDragging() },
+                        onDragEnd = { flipController.endDragging() }
+                    )
+                }
+                .graphicsLayer(
+                    rotationX = flipController.rotationX.value,
+                    rotationY = flipController.rotationY.value,
+                    transformOrigin = TransformOrigin.Center,
+                    cameraDistance = 12f * density.density
+                )
+                .onGloballyPositioned { layoutCoordinates ->
+                    size = layoutCoordinates.size
+                    flipController.updateSize(layoutCoordinates.size)
+                    displayedSize = LayoutUtils.calculateImageSize(
+                        size,
+                        intrinsicSize.toIntSize(),
+                        contentScale
+                    )
+                    Log.i("Compose3DCard", "Size: $size, Displayed Size: $displayedSize")
+                }
+                .clip(shape),
+            painter = painterResource(
+                if (!flipController.isFlipped) frontImage else backImage ?: frontImage
+            ),
+            contentDescription = contentDescription,
+            contentScale = contentScale
+        )
 
+        if (!flipController.isFlipped) {
+            ShimmerEffect(
+                rotationX = flipController.rotationX.value,
+                rotationY = flipController.rotationY.value,
+                shape = shape,
+                shimmerDirection = shimmerDirection,
+                modifier = Modifier
+                    .size(
+                        with(density) { displayedSize.width.toDp() },
+                        with(density) { displayedSize.height.toDp() }
+                    )
+                    .align(alignment)
+            )
         }
     }
-//    Box(
-//        modifier = modifier.size(
-//            width = if (size.width > 0) with(density) { size.width.toDp() } else Dp.Unspecified,
-//            height = if (size.height > 0) with(density) { size.height.toDp() } else Dp.Unspecified
-//        )
-//    ) {
-//        Image(
-//            modifier = Modifier
-//                .align(alignment)
-//                .pointerInput(Unit) {
-//                    detectDragGestures(
-//                        onDrag = { change, dragAmount ->
-//                            if (flipController.isFlipping) return@detectDragGestures
-//                            change.consume()
-//                            flipController.updateRotation(dragAmount.x, dragAmount.y)
-//                        },
-//                        onDragStart = { flipController.resetDragging() },
-//                        onDragEnd = { flipController.endDragging() }
-//                    )
-//                }
-//                .graphicsLayer(
-//                    rotationX = flipController.rotationX.value,
-//                    rotationY = flipController.rotationY.value,
-//                    transformOrigin = TransformOrigin.Center,
-//                    cameraDistance = 12f * density.density
-//                )
-//                .onGloballyPositioned { layoutCoordinates ->
-//                    size = layoutCoordinates.size
-//                    flipController.updateSize(layoutCoordinates.size)
-//                }
-//                .clip(shape),
-//            painter = painterResource(
-//                if (!flipController.isFlipped) frontImage else backImage ?: frontImage
-//            ),
-//            contentDescription = contentDescription,
-//            contentScale = contentScale
-//        )
-//
-//        if (!flipController.isFlipped) {
-//            ShimmerEffect(
-//                rotationX = flipController.rotationX.value,
-//                rotationY = flipController.rotationY.value,
-//                shape = shape,
-//                shimmerDirection = shimmerDirection,
-//                modifier = Modifier
-//                    .size(
-//                        with(density) { size.width.toDp() },
-//                        with(density) { size.height.toDp() }
-//                    )
-//                    .align(alignment)
-//            )
-//        }
-//    }
 }
 
 @Composable
